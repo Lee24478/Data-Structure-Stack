@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<title>Read the File</title>
+	<meta charset = 'utf-8'>
+	<div><b><font color = 'red' size = '5'>###我李健立自己思考解決、絕無抄襲###</font></b></div> <br>
+	<div><b><font color = 'navy' size = '4'>可自行輸入起始和終點座標 &nbsp;&nbsp;(若沒輸入則隨機取點)</font></b></div> <br>
+	<style>
+		body{text-align:center}
+	</style>
+	</head>
+	
+	<body>
+	<label for="CorValue1">請輸入<b>起始</b>x座標: </label> 
+	<input type="text" id="CorValue1" placeholder="打數字就可以囉~" > 
+	<p id="valueInput1"></p> 
+	
+	<label for="CorValue2">請輸入<b>起始</b>y座標: </label> 
+	<input type="text" id="CorValue2" placeholder="打數字就可以囉~" > 
+	<p id="valueInput2"></p>	
+	
+	<label for="CorValue3">請輸入<b>終點</b>x座標: </label> 
+	<input type="text" id="CorValue3" placeholder="打數字就可以囉~" > 
+	<p id="valueInput3"></p> 	
+	
+	<label for="CorValue4">請輸入<b>終點</b>y座標: </label> 
+	<input type="text" id="CorValue4" placeholder="打數字就可以囉~" > 
+	<p id="valueInput4"></p> 
+	
+	<button type="button"  onclick="getValueInput()"> 
+	確認
+	</button>
+	<br><br>
+	<div><font color = 'navy' size = '4'>若要隨機取點請直接選擇檔案&nbsp;&darr;</font></div>	
+	<input  type = 'file'  name = 'file'  id = 'file' />
+		<script>
+			var x1,x2,y1,y2;
+			var R
+			const getValueInput = () =>{
+				let inputValue1 = document.getElementById("CorValue1").value; 
+				let inputValue2 = document.getElementById("CorValue2").value; 
+				let inputValue3 = document.getElementById("CorValue3").value; 
+				let inputValue4 = document.getElementById("CorValue4").value; 
+				document.getElementById("valueInput1").innerHTML = inputValue1;
+				document.getElementById("valueInput2").innerHTML = inputValue2;
+				document.getElementById("valueInput3").innerHTML = inputValue3;
+				document.getElementById("valueInput4").innerHTML = inputValue4;
+				x1 = inputValue1;
+				y1 = inputValue2;
+				x2 = inputValue3;
+				y2 = inputValue4;
+				R = [[Number(x1),Number(y1)]];
+			}
+			var A = [[]];
+			document.getElementById('file').onchange = function(){
+				var file = this.files[0];
+				var reader = new FileReader();
+				reader.onload = function(progressEvent){
+					var Lines = this.result.split('\r\n'); 
+					for(var i=0 ; i < Lines.length ; i++){
+						<!-- console.log(i , Lines[i]); -->
+						A[i] = Lines[i].toString().split('');
+					}
+					
+					document.write("<font color = 'gray' size = '4' face = 'Courier';>原始的迷宮 :</font>" , "<br>");
+					for (i = 0 ; i < A.length ; i++){
+						document.write(`<font color = 'blue' size = '3' face = 'Courier';> ${A[i]} </font>` ,"<br>");
+					}
+					
+					var m = A.length , n = A[0].length;
+					if (x1 == undefined && y1 == undefined){
+						do {
+						x1 = (Math.random()*10000).toFixed() % m  //隨機起點
+						y1 = (Math.random()*10000).toFixed() % n
+						R = [[Number(x1),Number(y1)]]
+						} while(A[x1][y1] !=' ');
+					}
+					if (x2 == undefined && y2 == undefined){
+						do {
+						x2 = (Math.random()*10000).toFixed() % m  //隨機終點
+						y2 = (Math.random()*10000).toFixed() % n
+						} while(A[x2][y2] !=' ');
+					}
+					if (A[Number(x1)][Number(y1)] != ' '){
+					document.write("<b><font color = 'red' size = '5';>你設的起點壓到迷宮了！ 請按F5重新輸入</font></b>" , '<br>');
+					}
+					else{A[Number(x1)][Number(y1)] = '☆'}   //先把起點補起來
+					
+					if (A[Number(x2)][Number(y2)] != ' '){
+					document.write("<b><font color = 'red' size = '5';>你設的終點壓到迷宮了！ 請按F5重新輸入</font></b>" , '<br>');
+					}
+					
+					function walk(A,R){
+						var i,j;
+						[i,j] = R[R.length-1];
+						switch('n'){
+							case 'n' :
+								if(i > 0 && A[i-1][j] == ' '){
+									R.push([--i,j]);
+									A[i][j] = '●'
+									break;
+								}
+							case 'e' : 
+								if(j+1 < n && A[i][j+1] == ' '){
+									R.push([i,++j]);
+									A[i][j] = '●'
+									break;
+								}
+							case 'w' : 
+								if(j > 0 && A[i][j-1] == ' '){
+									R.push([i,--j]);
+									A[i][j] = '●'
+									break;
+								}
+							case 's' : 
+								if(i+1 < m && A[i+1][j] == ' '){
+									R.push([++i,j]);
+									A[i][j] = '●'
+									break;
+								}
+							default : R.pop();
+						}
+					}
+					while (R.length != 0){
+						walk(A,R);
+						if(String(R.at(-1)) == [Number(x2),Number(y2)]){
+						A[Number(x2)][Number(y2)] = '□';    //終點
+						break;
+						}  
+					}
+					<!-- console.log('走過的迷宮 :' , A); -->
+					<!-- console.log('路徑 :' , R); -->
+					document.write('你的起點 : ' , '(',Number(x1),',',Number(y1),')' , '&nbsp;&rarr;&nbsp;' , "<font face = 'Courier';>☆</font>" , '<br>');
+					document.write('你的終點 : ' , '(',Number(x2),',',Number(y2),')' , '&nbsp;&rarr;&nbsp;' , "<font face = 'Courier';>□</font>" ,  '<br><br>');
+					document.write("<font color = 'gray' size = '4' face = 'Courier';>走過的迷宮 :</font>" , "<br>");
+					for (i = 0 ; i < A.length ; i++){
+						document.write(`<font color = 'blue' size = '3' face = 'Courier';> ${A[i]} </font>` ,"<br>");
+					}
+					document.write("<font color = 'gray' size = '4' face = 'Courier';>路徑R :</font>" , "<br>");
+					var k=1;
+					if (R.length != 0){
+						for (i = 0 ; i < R.length ; i++){
+							document.write(`<font color = 'green' size = '3' face = 'Courier';>[${R[i]}]</font>` ,"&raquo;" );
+							if (k%16==0) {document.write('<br>')}
+							k++ ;
+						}
+					}
+					else{document.write("<font color = 'brown' size = '4' face = 'Courier';>已經全部跑完回到起始點囉!</font>");}
+				}
+				reader.readAsText(file);
+			}
+		</script>
+	</body>
+</html>
